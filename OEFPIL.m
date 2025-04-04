@@ -547,19 +547,15 @@ elseif strcmpi(options.method,'oefpilrs2')
         else
             crit  = funcrit;
         end
-        if options.verbose
-            Q21 = REi*QE' / LM;
-            Q11 = (LM' \ (eye(q) - QE*QE')) / LM;
-        end
+        Q21 = REi*QE' / LM;
+        Q11 = (LM' \ (eye(q) - QE*QE')) / LM;
     end
     Ubeta   = -Q22;
     ubeta   = sqrt(diag(Ubeta));
-    if options.verbose
-        Umu     = U - U*B1'*Q11*B1*U;
-        umu     = sqrt(diag(Umu));
-        Umb     = -U*B1'*Q21';
-        Umubeta = [Umu Umb; Umb' Ubeta];
-    end
+    Umu     = U - U*B1'*Q11*B1*U;
+    umu     = sqrt(diag(Umu));
+    Umb     = -U*B1'*Q21';
+    Umubeta = [Umu Umb; Umb' Ubeta];
 elseif strcmpi(options.method,'oefpilvw')
     % OEFPILVW / straightforward method suggested by VW
     while crit > tol && iter < maxit
@@ -597,6 +593,11 @@ elseif strcmpi(options.method,'oefpilvw')
     end
     Ubeta   = B2B1UB1B2\eye(p);
     ubeta   = sqrt(diag(Ubeta));
+    B2B2B1UB1B2B2 = B2*(B2B1UB1B2\B2');
+    B1UB1B2B2B1UB1B2B2 = B1UB1\B2B2B1UB1B2B2;
+    Q11 = (B1UB1'\(eye(m) - B1UB1B2B2B1UB1B2B2)')';
+    Umu     = U - U*B1'*Q11*B1*U;
+    umu     = sqrt(diag(Umu));
 else
     % OEFPILRS2 / method 2 by Radek Slesinger
     while crit > tol && iter < maxit
@@ -719,7 +720,6 @@ end
 
 %% TABLES Estimated model parameters beta
 
-TABLE_beta = table;
 TABLE_beta.Properties.Description = char(fun);
 TABLE_beta.ESTIMATE = beta0;
 TABLE_beta.STD      = ubeta;
@@ -727,9 +727,8 @@ TABLE_beta.FACTOR   = coverageFactor*ones(size(beta0));
 TABLE_beta.LOWER    = beta0 - coverageFactor*ubeta;
 TABLE_beta.UPPER    = beta0 + coverageFactor*ubeta;
 TABLE_beta.PVAL     = 2*normcdf(-abs(beta0./ubeta));
-TABLE_beta.Properties.RowNames = string(strcat('beta_',num2str((1:p)','%-d')));
+TABLE_beta.Properties.RowNames = strcat('beta_',num2str((1:p)','%-d'));
 
-TABLE_info = table;
 TABLE_info.Properties.Description = 'OEFPIL convergence';
 TABLE_info.N = N;
 TABLE_info.n = n;
