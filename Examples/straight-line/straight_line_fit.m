@@ -6,11 +6,6 @@ clear
 close all
 addpath("../../")
 
-% Octave needs to load statistics package
-if exist('OCTAVE_VERSION', 'builtin')
-    pkg load statistics;
-endif 
-
 % Load data
 load("PearsonYork.mat");
 
@@ -34,7 +29,7 @@ result = OEFPIL(data,U,fun,mu0,beta0,options);
 % Check convergence
 if result.iter == options.maxit
     printf("Warning: OEFPIL did not converge \n.");
-endif
+end
 
 
 % Print results
@@ -42,7 +37,7 @@ printf("Best estimate of parameters \n");
 printf("\t Best estimate \t Uncertainty\n");
 for i=1:length(beta0)
     printf("beta_%d \t %g \t %g \n", i, result.beta(i), result.ubeta(i));
-endfor
+end
 
 printf("\n");
 
@@ -50,4 +45,4 @@ printf("True values\n");
 printf("\t Best estimate \t Uncertainty\n");
 for i=1:length(mu0)
     printf("mu_%d \t %g \t %g \n", i, result.mu(i), result.umu(i));
-endfor
+end

@@ -244,6 +244,27 @@ function result = OEFPIL(data,U,fun,mu0,beta0,options)
 % Viktor Witkovsky (witkovsky@savba.sk)
 % Ver.:  18-Feb-2024 11:42:07
 
+%% CHECK THE ENVIRONMENT
+% If run in GNU Octave, statistics package is required.
+% If run in Matlab, Statistics and Machine Learning Toolbox is required
+if not(exist('norminv'))
+    if isOctave % octave environment
+        try
+            pkg load statistics;
+        catch errmsg1
+            try
+                disp('Pakcage `statistics` is missing. Trying to install it from Octave-forge...')
+                pkg install -forge statistics;
+                pkg load statistics;
+            catch errmsg2
+                error('OEFPIL:missing_norminv', 'OEFPIL requires GNU Octave package `statistics`. I have tried to install it but failed. Please try it yourself. The usual command is: `pkg install -forge statistics`.')
+            end % try
+        end % try
+    else % matlab environmnet
+        error('OEFPIL:missing_norminv', 'OEFPIL requires function `norminv` from Matlab package `Statistics and Machine Learning Toolbox`. Either buy it, or use open-source GNU Octave.');
+    end
+end
+
 %% CHECK THE INPUTS AND OUTPUTS
 narginchk(1, 6);
 if nargin < 6, options = []; end
