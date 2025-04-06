@@ -515,8 +515,12 @@ elseif strcmpi(options.method,'oefpilrs2')
         [B1,B2,b]  = OEFPIL_matrices(fun,mu0cell,beta0,options);
         M            = B1*U*B1';
         LM           = chol(M,'lower');
-        E            = LM \ B2;
-        [QE,RE]      = qr(E,'econ');
+        E            = LM \ B2; 
+        % qr(E, 0) is equivalent to qr(A,"econ","vector"). The use of this
+        % syntax is not recommended according manual to Matlab 2025.
+        % However to keep the compatibility with older Matlab versions
+        % older syntax is used:
+        [QE,RE]      = qr(E, 0);
         REi          = RE \ eye(p);
         Q22          = -REi*REi';
         u            = B1*residuals + b; %%% VW Corrected !!! Changed the sing to + b
@@ -606,7 +610,11 @@ else
         M            = B1*U*B1';
         LM           = chol(M,'lower');
         E            = LM \ B2;
-        [QE,RE]      = qr(E,'econ');
+        % qr(E, 0) is equivalent to qr(A,"econ","vector"). The use of this
+        % syntax is not recommended according manual to Matlab 2025.
+        % However to keep the compatibility with older Matlab versions
+        % older syntax is used:
+        [QE,RE]      = qr(E, 0);
         REi          = RE \ eye(p);
         Q22          = -REi*REi';
         u            = B1*residuals + b; %%% VW Corrected !!! Changed the sing to + b
