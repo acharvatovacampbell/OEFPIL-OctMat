@@ -4,7 +4,7 @@
  
 clear
 close all
-addpath("../../")
+addpath('../../')
 
 % Load data
 load("PearsonYork.mat");
@@ -28,21 +28,21 @@ result = OEFPIL(data,U,fun,mu0,beta0,options);
 
 % Check convergence
 if result.iter == options.maxit
-    printf("Warning: OEFPIL did not converge \n.");
+    fprintf("Warning: OEFPIL did not converge \n.");
 end
 
 
 % Print results
-printf("Best estimate of parameters \n");
-printf("\t Best estimate \t Uncertainty\n");
+fprintf("Best estimate of parameters \n");
+fprintf("\t Best estimate \t Uncertainty\n");
 for i=1:length(beta0)
-    printf("beta_%d \t %g \t %g \n", i, result.beta(i), result.ubeta(i));
+    fprintf("beta_%d \t %g \t %g \n", i, result.beta(i), result.ubeta(i));
 end
 
-printf("\n");
+fprintf("\n");
 
-printf("True values\n");
-printf("\t Best estimate \t Uncertainty\n");
+fprintf("True values\n");
+fprintf("\t Best estimate \t Uncertainty\n");
 for i=1:length(mu0)
-    printf("mu_%d \t %g \t %g \n", i, result.mu(i), result.umu(i));
+    fprintf("mu_%d \t %g \t %g \n", i, result.mu(i), result.umu(i));
 end
