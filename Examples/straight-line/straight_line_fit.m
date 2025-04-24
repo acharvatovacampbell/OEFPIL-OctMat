@@ -56,43 +56,36 @@ for i=1:length(result.mu(:,2))
     fprintf("muy_%d \t %g \t %g \n", i, result.mu(i,2), result.umu(i,2));
 end
 
-%---------------------- PLOTTING -----------
+% Plot the results
 
-x=data{1};
-y=data{2};
-ex = sqrt(diag(U{1,1}));
-ey = sqrt(diag(U{2,2}));
+x  = data{1};
+y = data{2};
+ux = sqrt(diag(U{1,1}));
+uy = sqrt(diag(U{2,2}));
 
-a=result.beta(1);
-b=result.beta(2);
-xstar = result.mu(:,1);
-ystar = result.mu(:,2);
+a = result.beta(1);
+b = result.beta(2);
 
 ua = result.ubeta(1);
 ub = result.ubeta(2);
-uab= result.Ubeta(1,2);
+uab = result.Ubeta(1,2);
 
 
 hold on;
 xlabel("x");
 ylabel("y");
 title("Straight line fit,\n Pearson's data with York's weights")
-errorbar(x, y, 2*ey, "bo");
-
-for i = 1:length(x)
-        line([x(i) - 2*ex(i), x(i) + 2*ex(i)], [y(i), y(i)], ...
-            'Color', 'blue', 'LineStyle', '-');
-end
+errorbar(x, y, 2*ux, 2*uy, "~>.b");
 
 
 tt = linspace(min(x)-0.1*(max(x)-min(x)), max(x)+0.1*(max(x)-min(x)), 1000);
 
-hoefpil=plot(tt, a*tt+b, "g-");
+hoefpil = plot(tt, a*tt+b, "g-");
 plot(tt, a*tt+b+2*sqrt(tt.^2*ua^2 + ub^2 + 2*tt*uab), "k--");
 plot(tt, a*tt+b-2*sqrt(tt.^2*ua^2 + ub^2 + 2*tt*uab), "k--");
 
-pnls=polyfit(x,y,1);
-hnls=plot(tt,polyval(pnls,tt), "m");
+pnls = polyfit(x,y,1);
+hnls = plot(tt,polyval(pnls,tt), "m");
 
 legend([hoefpil, hnls], {'OEFPIL', 'NLS'}, 'Location', 'northeast');
 print('straight_line', '-dpng', '-r300')  % 300 DPI PNG
