@@ -468,7 +468,7 @@ Q11 = [];
 Q21 = [];
 Q22 = [];
 Umu = [];
-umu = [];
+umuVec = [];
 Umubeta = [];
 
 %% ALGORITHM
@@ -523,10 +523,11 @@ if any(strcmpi(options.method,{'oefpil','oefpilrs1'}))
             crit  = funcrit;
         end
     end
+
     Ubeta   = -Q22;
     ubeta   = sqrt(diag(Ubeta));
     Umu     = U - U*B1'*Q11*B1*U;
-    umu     = sqrt(diag(Umu));
+    umuVec     = sqrt(diag(Umu));
     Umb     = -U*B1'*Q21';
     Umubeta = [Umu Umb; Umb' Ubeta];
 elseif strcmpi(options.method,'oefpilrs2')
@@ -578,7 +579,7 @@ elseif strcmpi(options.method,'oefpilrs2')
     Ubeta   = -Q22;
     ubeta   = sqrt(diag(Ubeta));
     Umu     = U - U*B1'*Q11*B1*U;
-    umu     = sqrt(diag(Umu));
+    umuVec     = sqrt(diag(Umu));
     Umb     = -U*B1'*Q21';
     Umubeta = [Umu Umb; Umb' Ubeta];
 elseif strcmpi(options.method,'oefpilvw')
@@ -622,7 +623,7 @@ elseif strcmpi(options.method,'oefpilvw')
     B1UB1B2B2B1UB1B2B2 = B1UB1\B2B2B1UB1B2B2;
     Q11 = (B1UB1'\(eye(m) - B1UB1B2B2B1UB1B2B2)')';
     Umu     = U - U*B1'*Q11*B1*U;
-    umu     = sqrt(diag(Umu));
+    umuVec     = sqrt(diag(Umu));
 else
     % OEFPILRS2 / method 2 by Radek Slesinger
     while crit > tol && iter < maxit
@@ -675,7 +676,7 @@ else
     ubeta   = sqrt(diag(Ubeta));
     if options.verbose
         Umu     = U - U*B1'*Q11*B1*U;
-        umu     = sqrt(diag(Umu));
+        umuVec     = sqrt(diag(Umu));
         Umb     = -U*B1'*Q21';
         Umubeta = [Umu Umb; Umb' Ubeta];
     end
@@ -686,6 +687,7 @@ beta   = beta0;
 muVec  = mu0Vec;
 muCell = mu0cell;
 mu     = reshape(muVec,m,n);
+umu     = reshape(umuVec,m,n);
 
 % Estimated chiSquaredStat and the scalar variance component sigma2 
 % (if we assume that Sigma = sigma^2*U) 
@@ -700,7 +702,7 @@ if options.isEstimatedVariance
     Ubeta   = sigma2Hat * Ubeta;
     ubeta   = sqrt(diag(Ubeta));
     Umu     = sigma2Hat * Umu;
-    umu     = sqrt(diag(Umu));
+    umuVec     = sqrt(diag(Umu));
     Umubeta = sigma2Hat * Umubeta;
 end
 
