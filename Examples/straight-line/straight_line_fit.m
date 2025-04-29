@@ -7,7 +7,21 @@ close all
 addpath('../../')
 
 % Load data
-load("PearsonYork.mat");
+xydata =  dlmread("Pearson-data");
+x = xydata(:,1);
+y = xydata(:,2);
+
+xcov = dlmread("York-xcov");
+ycov = dlmread("York-ycov");
+
+Uxx = diag(xcov);
+Uyy = diag(ycov);
+
+data = {x, y};
+U      = {Uxx []; [] Uyy};
+
+%alternatively
+%load("PearsonYork.mat");
 
 % Define function to be fitted as a constraint
 fun = @(mu,beta) beta(1)*mu{1}+beta(2) - mu{2};
@@ -78,14 +92,20 @@ title("Straight line fit,\n Pearson's data with York's weights")
 errorbar(x, y, 2*ux, 2*uy, "~>.b");
 
 
-tt = linspace(min(x)-0.1*(max(x)-min(x)), max(x)+0.1*(max(x)-min(x)), 1000);
 
-hoefpil = plot(tt, a*tt+b, "g-");
-plot(tt, a*tt+b+2*sqrt(tt.^2*ua^2 + ub^2 + 2*tt*uab), "k--");
-plot(tt, a*tt+b-2*sqrt(tt.^2*ua^2 + ub^2 + 2*tt*uab), "k--");
+xx = linspace(min(x)-0.1*(max(x)-min(x)), max(x)+0.1*(max(x)-min(x)), 1000);
+yy = fun({xx, zeros(size(xx))}, result.beta);
+
+dyydbeta = options.funDiff_beta({xx',zeros(size(xx'))}, result.beta);
+uyy = sqrt(diag(dyydbeta*result.Ubeta*dyydbeta'))';
+
+
+hoefpil = plot(xx, yy, "g-");
+plot(xx, yy+2*uyy, "k--");
+plot(xx, yy-2*uyy, "k--");
 
 pnls = polyfit(x,y,1);
-hnls = plot(tt,polyval(pnls,tt), "m");
+hnls = plot(xx,polyval(pnls,xx), "m");
 
 legend([hoefpil, hnls], {'OEFPIL', 'NLS'}, 'Location', 'northeast');
 print('straight_line', '-dpng', '-r300')  % 300 DPI PNG
