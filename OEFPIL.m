@@ -253,7 +253,7 @@ if not(exist('norminv'))
             pkg load statistics;
         catch errmsg1
             try
-                disp('Pakcage `statistics` is missing. Trying to install it from Octave-forge...')
+                disp('Package `statistics` is missing. Trying to install it from Octave-forge...')
                 pkg install -forge statistics;
                 pkg load statistics;
             catch errmsg2
