@@ -8,15 +8,15 @@ addpath('../../')
 
 %% Set up data
 
-caldata = dlmread("XY.dat");
-x = caldata(2:end, 2);
-ux = caldata(2:end, 3);
-y = caldata(2:end, 4);
-uy = caldata(2:end, 5);
+caldata = dlmread("XY.dat", ";", 1, 1);
+x = caldata(:, 1);
+ux = caldata(:, 2);
+y = caldata(:, 3);
+uy = caldata(:, 4);
 
-unknown = dlmread("Y.dat");
-z = unknown(2:end,2);
-uz = unknown(2:end,3);
+unknown = dlmread("Y.dat", ";", 1, 1);
+z = unknown(:, 1);
+uz = unknown(:, 2);
 
 Ux = diag(ux.^2);
 Uy = diag(uy.^2);
@@ -100,11 +100,13 @@ if have_lsq
         mse = resnorm / dof;
         covpar = mse * inv(jacobian' * jacobian);
         upnls = sqrt(diag(covpar)); 
-   endif
+   end
    disp("\n\nNon-linear least squares");
    disp('Parameters of calibration curve ');
    for i = 1:np
-        fprintf('%s %g %g \n', abc(i), pnls(i), upnls(i))
+       % in matlab unpls is sparse matrix, and must be converted to full
+       % before printing:
+        fprintf('%s %g %g \n', abc(i), pnls(i), full(upnls(i)))
    end
 
    fprintf("\n");
@@ -134,7 +136,11 @@ a = result.beta(1);
 b = result.beta(2);
 c = result.beta(3);
 
-errorbar(x, y, 2*ux, 2*uy, "~>.b");
+if isOctave
+    errorbar(x, y, 2*ux, 2*uy, "~>.b");
+else
+    errorbar(x, y, 2*uy, 2*uy, 2*ux, 2*ux, '.b');
+end
 hold on;
 
 lt = log10(min(x))-0.04*(log10(max(x))-log10(min(x)));
@@ -145,19 +151,19 @@ yy = result.beta(1)*xx./(result.beta(2)+xx)+ result.beta(3);
 xlim([10^lt, 10^ut]);
 
 
-hoefpil = plot(xx, yy, "g-");
+hoefpil = plot(xx, yy, 'g-');
 
 dy=[ xx./(result.beta(2) + xx), -result.beta(1).*xx./(result.beta(2)+xx).^2, ones(size(xx))];
 uy = diag(sqrt(dy*result.Ubeta(1:np,1:np)*dy'));
 
-plot(xx, yy + 2*uy, "k--");
-plot(xx, yy - 2*uy, "k--");
+plot(xx, yy + 2*uy, 'k--');
+plot(xx, yy - 2*uy, 'k--');
 
 if have_lsq
    if isOctave
-        hnls = plot(xx, ff(xx,pnls), "m");
+        hnls = plot(xx, ff(xx,pnls), 'm');
    else
-       hnls = plot(xx,ff(pnls, xx), "m");
+       hnls = plot(xx,ff(pnls, xx), 'm');
    end
    legend([hoefpil, hnls], {'OEFPIL', 'NLS'}, 'Location', 'southeast');
 else
@@ -167,6 +173,7 @@ end
 set(gca, 'XScale', 'log')
 xlabel("thermal conductivity (W m^{-1} K^{-1})");
 ylabel("Y measurand");
-title("SThM calibration curve,\n ax/(b+x) +c ")
+title({"SThM calibration curve,", "ax/(b+x) +c"})
 print('SThMcalibration', '-dpng', '-r300')  % 300 DPI PNG
 
+hold off;
