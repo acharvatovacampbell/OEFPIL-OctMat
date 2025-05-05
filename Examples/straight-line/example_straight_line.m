@@ -88,24 +88,36 @@ uab = result.Ubeta(1,2);
 hold on;
 xlabel("x");
 ylabel("y");
-title("Straight line fit,\n Pearson's data with York's weights")
-errorbar(x, y, 2*ux, 2*uy, "~>.b");
+title({"Straight line fit", "Pearson's data with York's weights"})
 
-
-
+% calculate oefpil curve:
 xx = linspace(min(x)-0.1*(max(x)-min(x)), max(x)+0.1*(max(x)-min(x)), 1000);
 yy = fun({xx, zeros(size(xx))}, result.beta);
-
+% calculate oefpil curve bands:
 dyydbeta = options.funDiff_beta({xx',zeros(size(xx'))}, result.beta);
 uyy = sqrt(diag(dyydbeta*result.Ubeta*dyydbeta'))';
+% calculate polyfit function - least-square-error fit:
+[pnls, snls] = polyfit(x,y,1);
+[yynls, uyynls] = polyval(pnls, xx, snls);
 
-
-hoefpil = plot(xx, yy, "g-");
-plot(xx, yy+2*uyy, "k--");
-plot(xx, yy-2*uyy, "k--");
-
-pnls = polyfit(x,y,1);
-hnls = plot(xx,polyval(pnls,xx), "m");
-
-legend([hoefpil, hnls], {'OEFPIL', 'NLS'}, 'Location', 'northeast');
+% plot fills as first because fills should go to the bottom and plot rest over
+% the fills
+fill([xx, flip(xx)], [yynls-2*uyynls, flip(yynls+2*uyynls)], 'm', 'facealpha', 0.1, 'edgealpha', 0);
+fill([xx, flip(xx)], [yy-2*uyy, flip(yy+2*uyy)], 'g', 'facealpha', 0.2, 'edgealpha', 0);
+% plot data:
+if isOctave
+    errorbar(x, y, 2*ux, 2*uy, '~>.b');
+else
+    errorbar(x, y, 2*uy, 2*uy, 2*ux, 2*ux, '.b');
+end
+% plot oefpil curve and bands:
+hoefpil = plot(xx, yy, 'g-', 'linewidth', 2);
+                    % plot(xx, yy+2*uyy, 'g--', 'linewidth', 2);
+                    % plot(xx, yy-2*uyy, 'g--', 'linewidth', 2);
+% plot polyfit and bands:
+hnls = plot(xx, yynls, 'm-');
+                    % hnls = plot(xx, yynls - 2*uyynls, 'm--');
+                    % hnls = plot(xx, yynls + 2*uyynls, 'm--');
+% save plot to file:
+legend([hnls, hoefpil], {'polyfit (least-square-error, )', 'OEFPIL'}, 'Location', 'northeast');
 print('straight_line', '-dpng', '-r300')  % 300 DPI PNG
