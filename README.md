@@ -34,3 +34,9 @@ Several examples are included in subdirectory `Examples`. The typical one use
 ```
 
 ![Straight line fit using OEFPIL](Examples/straight-line/straight_line.png)
+
+## QR-code to this web
+
+[SVG](qr-code/qr-code.svg), [PDF](qr-code/qr-code.pdf)
+
+![OEFPIL-OctMAT](qr-code/qr-code.png)
